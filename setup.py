@@ -19,8 +19,7 @@ setuptools.setup(
     install_requires=[],
     packages=setuptools.find_packages(where="src"),
     package_dir={"": "src"},
-    setup_requires=["pytest-runner"],
-    tests_require=["pytest"],
+    tests_require=["pytest", "pytest-cov", "pytest-mock", "ruff"],
     python_requires=">=3.10",
     classifiers=[
         "Intended Audience :: Developers",
