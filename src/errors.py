@@ -6,10 +6,10 @@ class Errors:
     """
     Class for logging errors
     """
-    WARNING = Error.WARNING
-    ERROR = Error.ERROR
-    DEBUG = Error.DEBUG
-    INFO = Error.INFO
+    ERROR = Error.ERROR # 40    
+    WARNING = Error.WARNING # 30
+    DEBUG = Error.DEBUG # 20
+    INFO = Error.INFO # 10
 
     def __init__(self):
         """
@@ -44,6 +44,7 @@ class Errors:
         """
         result = []
         for item in self._items:
-            if item.level >= level:
+            print(f"LEVEL: {item.level}, {level}")
+            if item.level <= level:
                 result.append(item.to_dict())
         return result

@@ -24,10 +24,11 @@ class Error:
         """
         Convert the error to a dictionary
         """
-        return {
-            **self.location.to_dict(),
-            **{
-                "message": self.message,
-                "level": self.__class__.LABEL[self.level].capitalize(),
-            },
+        result = {
+            'level': self.__class__.LABEL[self.level].capitalize(),
+            'message': self.message,
+            'location': self.location.to_dict()
         }
+        print(f"RESULT: {result}")
+        return result
+ 

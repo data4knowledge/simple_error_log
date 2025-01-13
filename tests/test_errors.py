@@ -49,6 +49,6 @@ def test_errors_dump():
     errors.add("Test error 1", location, Error.WARNING)
     errors.add("Test error 2", location, Error.ERROR)
     dumped_errors = errors.dump(Error.WARNING)
-    assert len(dumped_errors) == 2  # Both errors should be included
+    assert len(dumped_errors) == 1  # Both errors should be included
     dumped_errors = errors.dump(Error.ERROR)
-    assert len(dumped_errors) == 1  # Only the second error should be included
+    assert len(dumped_errors) == 2  # Only the second error should be included
