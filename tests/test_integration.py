@@ -1,8 +1,8 @@
-from error_location import (
+from d4k.error_location import (
     GridLocation,
     DocumentSectionLocation,
 )
-from errors import Errors
+from d4k.errors import Errors
 
 def test_integration():
     errors = Errors()

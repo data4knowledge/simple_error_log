@@ -1,5 +1,5 @@
 import logging
-from error_location import ErrorLocation
+from d4k.error_location import ErrorLocation
 
 
 class Error:

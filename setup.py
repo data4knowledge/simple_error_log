@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 version = {}
-with open("src/__version__.py") as fp:
+with open("src/d4k/__info__.py") as fp:
   exec(fp.read(), version)
 
 setuptools.setup(

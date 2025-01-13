@@ -1,6 +1,6 @@
-from errors import Errors
-from error import Error
-from error_location import ErrorLocation
+from d4k.errors import Errors
+from d4k.error import Error
+from d4k.error_location import ErrorLocation
 
 
 class MockErrorLocation(ErrorLocation):
