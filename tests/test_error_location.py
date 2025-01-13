@@ -1,7 +1,15 @@
 from error_location import (
+    ErrorLocation,
     GridLocation,
     DocumentSectionLocation,
 )
+
+
+def test_error_location_str():
+    gl = ErrorLocation()
+    assert str(gl) == ""
+    assert gl.format() == ""
+    assert gl.to_dict() == {}
 
 
 def test_grid_location_str():
