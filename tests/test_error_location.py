@@ -1,4 +1,4 @@
-from d4k.error_location import (
+from d4k_sel.error_location import (
     ErrorLocation,
     GridLocation,
     DocumentSectionLocation,

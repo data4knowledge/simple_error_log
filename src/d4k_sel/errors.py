@@ -1,5 +1,5 @@
-from d4k.error import Error
-from d4k.error_location import ErrorLocation
+from d4k_sel.error import Error
+from d4k_sel.error_location import ErrorLocation
 
 
 class Errors:
