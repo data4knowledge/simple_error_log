@@ -2,6 +2,7 @@ from d4k_sel.error_location import (
     ErrorLocation,
     GridLocation,
     DocumentSectionLocation,
+    KlassMethodLocation,
 )
 
 
@@ -22,3 +23,9 @@ def test_document_section_location_str():
     dsl = DocumentSectionLocation("1", "Introduction")
     assert str(dsl) == "[1 Introduction]"
     assert dsl.to_dict() == {"section_number": "1", "section_title": "Introduction"}
+
+
+def test_klass_method_location_str():
+    kml = KlassMethodLocation("MyClass", "my_method")
+    assert str(kml) == "MyClass.my_method"
+    assert kml.to_dict() == {"class_name": "MyClass", "method_name": "my_method"}

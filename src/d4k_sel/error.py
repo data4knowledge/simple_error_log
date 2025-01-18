@@ -6,6 +6,7 @@ class Error:
     """
     Base class for errors
     """
+
     ERROR = logging.ERROR
     WARNING = logging.WARNING
     DEBUG = logging.DEBUG
@@ -25,10 +26,9 @@ class Error:
         Convert the error to a dictionary
         """
         result = {
-            'level': self.__class__.LABEL[self.level].capitalize(),
-            'message': self.message,
-            'location': self.location.to_dict()
+            "level": self.__class__.LABEL[self.level].capitalize(),
+            "message": self.message,
+            "location": self.location.to_dict(),
         }
         print(f"RESULT: {result}")
         return result
- 

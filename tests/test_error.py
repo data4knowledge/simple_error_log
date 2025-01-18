@@ -6,6 +6,7 @@ class MockErrorLocation(ErrorLocation):
     """
     Mock error location
     """
+
     def to_dict(self):
         return {"mock_key": "mock_value"}
 
@@ -28,7 +29,7 @@ def test_error_to_dict():
     location = MockErrorLocation()
     error = Error("Test error message", location, Error.WARNING)
     expected_dict = {
-       "location": {"mock_key": "mock_value"},
+        "location": {"mock_key": "mock_value"},
         "message": "Test error message",
         "level": "Warning",
     }

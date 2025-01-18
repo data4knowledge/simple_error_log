@@ -3,9 +3,9 @@ from d4k_sel.error import Error
 from d4k_sel.error_location import ErrorLocation, GridLocation, DocumentSectionLocation
 
 __all__ = [
-  'Errors',
-  'Error',
-  'ErrorLocation',
-  'GridLocation',
-  'DocumentSectionLocation'
+    "Errors",
+    "Error",
+    "ErrorLocation",
+    "GridLocation",
+    "DocumentSectionLocation",
 ]

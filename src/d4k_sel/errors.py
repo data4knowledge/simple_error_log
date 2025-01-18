@@ -6,10 +6,11 @@ class Errors:
     """
     Class for logging errors
     """
-    ERROR = Error.ERROR # 40    
-    WARNING = Error.WARNING # 30
-    DEBUG = Error.DEBUG # 20
-    INFO = Error.INFO # 10
+
+    ERROR = Error.ERROR  # 40
+    WARNING = Error.WARNING  # 30
+    DEBUG = Error.DEBUG  # 20
+    INFO = Error.INFO  # 10
 
     def __init__(self):
         """

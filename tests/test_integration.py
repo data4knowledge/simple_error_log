@@ -4,6 +4,7 @@ from d4k_sel.error_location import (
 )
 from d4k_sel.errors import Errors
 
+
 def test_integration():
     errors = Errors()
     location = DocumentSectionLocation("1", "Introduction")
@@ -17,25 +18,23 @@ def test_integration():
         {
             "location": {"section_number": "1", "section_title": "Introduction"},
             "message": "Test error 1",
-            'level': 'Error'
+            "level": "Error",
         },
         {
-            "location": {"row": 1, "column": 3}, 
+            "location": {"row": 1, "column": 3},
             "message": "Test error 2",
-            'level': 'Error'
+            "level": "Error",
         },
         {
             "location": {"row": 10, "column": 30},
             "message": "Test error 3",
-            'level': 'Info'
-        }
+            "level": "Info",
+        },
     ]
     assert errors.dump(Errors.INFO) == [
         {
             "location": {"row": 10, "column": 30},
             "message": "Test error 3",
-            'level': 'Info'
+            "level": "Info",
         }
     ]
-
-
