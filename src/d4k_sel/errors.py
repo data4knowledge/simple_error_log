@@ -45,7 +45,6 @@ class Errors:
         """
         result = []
         for item in self._items:
-            print(f"LEVEL: {item.level}, {level}")
             if item.level <= level:
                 result.append(item.to_dict())
         return result
