@@ -1,1 +1,1 @@
-__package_version__ = "0.2.0"
+__package_version__ = "0.3.0"
