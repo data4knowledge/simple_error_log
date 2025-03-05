@@ -30,5 +30,4 @@ class Error:
             "message": self.message,
             "location": self.location.to_dict(),
         }
-        print(f"RESULT: {result}")
         return result
