@@ -29,10 +29,20 @@ def test_error_to_dict():
     """
     location = MockErrorLocation()
     error = Error("Test error message", location, "test_error_type", Error.WARNING)
-    expected_dict = {
-        "location": {"mock_key": "mock_value"},
-        "message": "Test error message",
-        "level": "Warning",
-        "type": "test_error_type",
-    }
-    assert error.to_dict() == expected_dict
+    result_dict = error.to_dict()
+
+    # Check each field individually, ignoring the timestamp
+    assert result_dict["location"] == {"mock_key": "mock_value"}
+    assert result_dict["message"] == "Test error message"
+    assert result_dict["level"] == "Warning"
+    assert result_dict["type"] == "test_error_type"
+
+    # Verify timestamp is present and formatted correctly
+    assert "timestamp" in result_dict
+    assert isinstance(result_dict["timestamp"], str)
+    # Check timestamp format (YYYY-MM-DD HH:MM:SS.ffffff)
+    import re
+
+    assert re.match(
+        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6}", result_dict["timestamp"]
+    )

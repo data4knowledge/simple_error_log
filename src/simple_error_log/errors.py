@@ -1,3 +1,4 @@
+import traceback
 from simple_error_log.error import Error
 from simple_error_log.error_location import ErrorLocation
 
@@ -13,38 +14,44 @@ class Errors:
     INFO = Error.INFO  # 10
 
     def __init__(self):
-        """
-        Initialize the errors
-        """
         self._items: list[Error] = []
 
+    def error(self, message: str, location: ErrorLocation = None):
+        self.add(message, location)
+
+    def info(self, message: str, location: ErrorLocation = None):
+        self.add(message, location, level=self.INFO)
+
+    def debug(self, message: str, location: ErrorLocation = None):
+        self.add(message, location, level=self.DEBUG)
+
+    def warning(self, message: str, location: ErrorLocation = None):
+        self.add(message, location, level=self.WARNING)
+
+    def exception(self, message: str, e: Exception, location: ErrorLocation = None):
+        message = f"{message}\n\nDetails\n{e}\n\nTraceback\n{traceback.format_exc()}"
+        self.add(message, location)
+
     def clear(self):
-        """
-        Clear the errors
-        """
         self._items = []
 
     def add(
-        self, message: str, location: ErrorLocation, error_type: str = "", level: int = Error.ERROR
+        self,
+        message: str,
+        location: ErrorLocation = None,
+        error_type: str = "",
+        level: int = Error.ERROR,
     ) -> None:
-        """
-        Add an error
-        """
+        location = location if location else ErrorLocation()
         error = Error(message, location, error_type, level)
         self._items.append(error)
 
     def count(self) -> int:
-        """
-        Count the errors
-        """
         return len(self._items)
 
-    def dump(self, level) -> list:
-        """
-        Dump the errors
-        """
+    def dump(self, level=ERROR) -> list:
         result = []
         for item in self._items:
-            if item.level <= level:
+            if item.level >= level:
                 result.append(item.to_dict())
         return result
