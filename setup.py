@@ -4,11 +4,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 version = {}
-with open("src/d4k_sel/__info__.py") as fp:
+with open("src/simple_error_log/__info__.py") as fp:
     exec(fp.read(), version)
 
 setuptools.setup(
-    name="simple-error-log",
+    name="simple_error_log",
     version=version["__package_version__"],
     author="D Iberson-Hurst",
     author_email="",
