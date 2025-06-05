@@ -7,7 +7,7 @@ A set of simple classes for logging errors.
 ## Installation
 
 ```bash
-pip install simple-error-log
+pip install simple_error_log
 ```
 
 ## Building package
