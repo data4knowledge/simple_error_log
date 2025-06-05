@@ -1,6 +1,6 @@
-from d4k_sel.errors import Errors
-from d4k_sel.error import Error
-from d4k_sel.error_location import ErrorLocation
+from simple_error_log.errors import Errors
+from simple_error_log.error import Error
+from simple_error_log.error_location import ErrorLocation
 
 
 class MockErrorLocation(ErrorLocation):
@@ -26,7 +26,7 @@ def test_errors_add():
     """
     errors = Errors()
     location = MockErrorLocation()
-    errors.add("Test error", location, Error.ERROR)
+    errors.add("Test error", location, "test_error_type", Error.ERROR)
     assert errors.count() == 1
 
 
@@ -36,7 +36,7 @@ def test_errors_clear():
     """
     errors = Errors()
     location = MockErrorLocation()
-    errors.add("Test error", location, Error.ERROR)
+    errors.add("Test error", location, "test_error_type", Error.ERROR)
     errors.clear()
     assert errors.count() == 0
 
@@ -47,8 +47,8 @@ def test_errors_dump():
     """
     errors = Errors()
     location = MockErrorLocation()
-    errors.add("Test error 1", location, Error.WARNING)
-    errors.add("Test error 2", location, Error.ERROR)
+    errors.add("Test error 1", location, "warning_type", Error.WARNING)
+    errors.add("Test error 2", location, "error_type", Error.ERROR)
     dumped_errors = errors.dump(Error.WARNING)
     assert len(dumped_errors) == 1  # Both errors should be included
     dumped_errors = errors.dump(Error.ERROR)

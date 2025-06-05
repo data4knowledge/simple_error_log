@@ -1,5 +1,5 @@
-from d4k_sel.error import Error
-from d4k_sel.error_location import ErrorLocation
+from simple_error_log.error import Error
+from simple_error_log.error_location import ErrorLocation
 
 
 class MockErrorLocation(ErrorLocation):
@@ -16,10 +16,11 @@ def test_error_initialization():
     Test the error initialization
     """
     location = MockErrorLocation()
-    error = Error("Test error message", location, Error.ERROR)
+    error = Error("Test error message", location, "test_error_type", Error.ERROR)
     assert error.message == "Test error message"
     assert error.location == location
     assert error.level == Error.ERROR
+    assert error.error_type == "test_error_type"
 
 
 def test_error_to_dict():
@@ -27,10 +28,11 @@ def test_error_to_dict():
     Test the error to dictionary conversion
     """
     location = MockErrorLocation()
-    error = Error("Test error message", location, Error.WARNING)
+    error = Error("Test error message", location, "test_error_type", Error.WARNING)
     expected_dict = {
         "location": {"mock_key": "mock_value"},
         "message": "Test error message",
         "level": "Warning",
+        "type": "test_error_type",
     }
     assert error.to_dict() == expected_dict

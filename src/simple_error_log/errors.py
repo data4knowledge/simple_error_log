@@ -1,5 +1,5 @@
-from d4k_sel.error import Error
-from d4k_sel.error_location import ErrorLocation
+from simple_error_log.error import Error
+from simple_error_log.error_location import ErrorLocation
 
 
 class Errors:
@@ -25,12 +25,12 @@ class Errors:
         self._items = []
 
     def add(
-        self, message: str, location: ErrorLocation, level: int = Error.ERROR
+        self, message: str, location: ErrorLocation, error_type: str = "", level: int = Error.ERROR
     ) -> None:
         """
         Add an error
         """
-        error = Error(message, location, level)
+        error = Error(message, location, error_type, level)
         self._items.append(error)
 
     def count(self) -> int:
