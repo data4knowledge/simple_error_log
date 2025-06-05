@@ -1,4 +1,5 @@
 import re
+import time
 from simple_error_log.errors import Errors
 from simple_error_log.error import Error
 from simple_error_log.error_location import ErrorLocation
@@ -235,3 +236,96 @@ def test_errors_with_default_location():
         assert "location" in error
         # Default ErrorLocation to_dict() should return an empty dict
         assert isinstance(error["location"], dict)
+
+
+def test_errors_merge():
+    """
+    Test the merge method
+    """
+    # Create first Errors object with some errors
+    errors1 = Errors()
+    location1 = MockErrorLocation()
+    errors1.error("Error 1", location1)
+    
+    # Sleep briefly to ensure different timestamps
+    time.sleep(0.01)
+    
+    # Create second Errors object with some errors
+    errors2 = Errors()
+    location2 = MockErrorLocation()
+    errors2.warning("Warning 1", location2)
+    errors2.error("Error 2", location2)
+    
+    # Get the initial counts
+    assert errors1.count() == 1
+    assert errors2.count() == 2
+    
+    # Merge errors2 into errors1
+    errors1.merge(errors2)
+    
+    # Verify the merged count
+    assert errors1.count() == 3
+    
+    # Dump all errors and verify they're all there
+    all_errors = errors1.dump(Error.DEBUG)
+    assert len(all_errors) == 3
+    
+    # Verify the errors are in the correct order (sorted by timestamp)
+    # The first error should be "Error 1" since it was created first
+    assert all_errors[0]["message"] == "Error 1"
+    assert all_errors[0]["level"] == "Error"
+    
+    # The next errors should be from errors2, in the order they were created
+    assert all_errors[1]["message"] == "Warning 1"
+    assert all_errors[1]["level"] == "Warning"
+    
+    assert all_errors[2]["message"] == "Error 2"
+    assert all_errors[2]["level"] == "Error"
+    
+    # Verify timestamps are in ascending order
+    timestamp1 = all_errors[0]["timestamp"]
+    timestamp2 = all_errors[1]["timestamp"]
+    timestamp3 = all_errors[2]["timestamp"]
+    
+    assert timestamp1 <= timestamp2 <= timestamp3
+
+
+def test_errors_merge_empty():
+    """
+    Test merging with an empty Errors object
+    """
+    # Create an Errors object with some errors
+    errors1 = Errors()
+    location = MockErrorLocation()
+    errors1.error("Error 1", location)
+    errors1.warning("Warning 1", location)
+    
+    # Create an empty Errors object
+    errors2 = Errors()
+    
+    # Get the initial counts
+    assert errors1.count() == 2
+    assert errors2.count() == 0
+    
+    # Merge empty errors2 into errors1
+    errors1.merge(errors2)
+    
+    # Verify count hasn't changed
+    assert errors1.count() == 2
+    
+    # Merge errors1 into empty errors2
+    errors2.merge(errors1)
+    
+    # Verify errors2 now has all the errors
+    assert errors2.count() == 2
+    
+    # Dump all errors and verify they're all there
+    all_errors = errors2.dump(Error.DEBUG)
+    assert len(all_errors) == 2
+    
+    # Verify the errors are in the correct order
+    assert all_errors[0]["message"] == "Error 1"
+    assert all_errors[0]["level"] == "Error"
+    
+    assert all_errors[1]["message"] == "Warning 1"
+    assert all_errors[1]["level"] == "Warning"

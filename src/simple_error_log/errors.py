@@ -32,6 +32,10 @@ class Errors:
         message = f"{message}\n\nDetails\n{e}\n\nTraceback\n{traceback.format_exc()}"
         self.add(message, location)
 
+    def merge(self, other: 'Errors'):
+        self._items += other._items
+        self._items = sorted(self._items, key=lambda d: d.timestamp)
+        
     def clear(self):
         self._items = []
 
