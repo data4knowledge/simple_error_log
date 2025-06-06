@@ -329,3 +329,57 @@ def test_errors_merge_empty():
     
     assert all_errors[1]["message"] == "Warning 1"
     assert all_errors[1]["level"] == "Warning"
+
+
+def test_errors_error_count():
+    """
+    Test the error_count method
+    """
+    errors = Errors()
+    location = MockErrorLocation()
+    
+    # Initially there should be no errors
+    assert errors.error_count() == 0
+    
+    # Add errors with different levels
+    errors.error("Error 1", location)
+    errors.warning("Warning 1", location)
+    errors.info("Info 1", location)
+    errors.debug("Debug 1", location)
+    
+    # Verify total count
+    assert errors.count() == 4
+    
+    # Verify error_count only counts ERROR level items
+    assert errors.error_count() == 1
+    
+    # Add another error
+    errors.error("Error 2", location)
+    
+    # Verify counts again
+    assert errors.count() == 5
+    assert errors.error_count() == 2
+    
+    # Add an error with explicit level
+    errors.add("Error 3", location, "test_error_type", Error.ERROR)
+    
+    # Verify counts again
+    assert errors.count() == 6
+    assert errors.error_count() == 3
+    
+    # Add an exception (which should be at ERROR level)
+    try:
+        raise ValueError("Test exception")
+    except Exception as e:
+        errors.exception("Exception 1", e, location)
+    
+    # Verify counts again
+    assert errors.count() == 7
+    assert errors.error_count() == 4
+    
+    # Clear all errors
+    errors.clear()
+    
+    # Verify counts are reset
+    assert errors.count() == 0
+    assert errors.error_count() == 0

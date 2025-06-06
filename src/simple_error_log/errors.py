@@ -53,6 +53,9 @@ class Errors:
     def count(self) -> int:
         return len(self._items)
 
+    def error_count(self) -> int:
+        return len([x for x in self._items if x.level == Error.ERROR])
+
     def dump(self, level=ERROR) -> list:
         result = []
         for item in self._items:
