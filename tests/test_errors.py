@@ -4,9 +4,11 @@ from simple_error_log.errors import Errors
 from simple_error_log.error import Error
 from simple_error_log.error_location import ErrorLocation
 
+
 def fix_timestamp(data: str) -> str:
     timestamp_pattern = r"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{6})"
     return re.sub(timestamp_pattern, "YYYY-MM-DD HH:MM:SS.nnnnnn", data)
+
 
 class MockErrorLocation(ErrorLocation):
     """
@@ -80,8 +82,10 @@ def test_errors_dump():
     errors.add("Test error 2", location, "error_type", Error.ERROR)
     errors.add("Test error 3\n-\nExtra line", location, "error_type", Error.ERROR)
     raw_result = errors.dump(Error.WARNING)
-    fixed_result = fix_timestamp(raw_result) # Timestamps are dynamic
-    assert fixed_result == """- Warning, type: 'warning_type', @ YYYY-MM-DD HH:MM:SS.nnnnnn, location: {'mock_key': 'mock_value'}
+    fixed_result = fix_timestamp(raw_result)  # Timestamps are dynamic
+    assert (
+        fixed_result
+        == """- Warning, type: 'warning_type', @ YYYY-MM-DD HH:MM:SS.nnnnnn, location: {'mock_key': 'mock_value'}
   Test error 1
   Line2
   line3
@@ -95,6 +99,7 @@ def test_errors_dump():
   Extra line
 
 """
+    )
 
 
 def test_errors_error():

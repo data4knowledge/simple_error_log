@@ -1,4 +1,3 @@
-import pytest
 from simple_error_log.error_location import (
     ErrorLocation,
     GridLocation,
@@ -27,10 +26,11 @@ class TestErrorLocation:
 
     def test_error_location_inheritance(self):
         """Test that ErrorLocation can be subclassed"""
+
         class CustomLocation(ErrorLocation):
             def __str__(self):
                 return "custom"
-        
+
         cl = CustomLocation()
         assert str(cl) == "custom"
         assert cl.format() == "custom"
@@ -128,7 +128,10 @@ class TestDocumentSectionLocation:
         """Test DocumentSectionLocation with special characters"""
         dsl = DocumentSectionLocation("A.1.2", "Methods & Results")
         assert str(dsl) == "[A.1.2 Methods & Results]"
-        assert dsl.to_dict() == {"section_number": "A.1.2", "section_title": "Methods & Results"}
+        assert dsl.to_dict() == {
+            "section_number": "A.1.2",
+            "section_title": "Methods & Results",
+        }
 
     def test_document_section_location_attributes(self):
         """Test DocumentSectionLocation attribute access"""
@@ -198,7 +201,7 @@ class TestLocationComparisons:
         gl = GridLocation(1, 1)
         dsl = DocumentSectionLocation("1", "Test")
         kml = KlassMethodLocation("Class", "method")
-        
+
         assert str(el) == ""
         assert str(gl) == "[1, 1]"
         assert str(dsl) == "[1 Test]"
@@ -210,7 +213,7 @@ class TestLocationComparisons:
         gl = GridLocation(2, 3)
         dsl = DocumentSectionLocation("2", "Analysis")
         kml = KlassMethodLocation("Parser", "parse")
-        
+
         assert el.to_dict() == {}
         assert gl.to_dict() == {"row": 2, "column": 3}
         assert dsl.to_dict() == {"section_number": "2", "section_title": "Analysis"}
@@ -222,9 +225,9 @@ class TestLocationComparisons:
             ErrorLocation(),
             GridLocation(1, 2),
             DocumentSectionLocation("1", "Test"),
-            KlassMethodLocation("Class", "method")
+            KlassMethodLocation("Class", "method"),
         ]
-        
+
         for location in locations:
             # Should not raise an exception
             result = location.format()
