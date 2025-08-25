@@ -18,15 +18,15 @@ def test_integration():
     # Get the dumped errors
     # With the new logic, dump(Errors.ERROR) returns errors with level >= ERROR (only ERROR level errors)
     # dump(Errors.INFO) returns errors with level >= INFO (ERROR, WARNING, and INFO level errors)
-    error_dump = errors.dump(Errors.ERROR)
-    info_dump = errors.dump(Errors.INFO)
+    error_dump = errors.to_dict(Errors.ERROR)
+    info_dump = errors.to_dict(Errors.INFO)
 
     # Check the number of errors
     assert len(error_dump) == 2  # Only the ERROR level errors (first two)
     assert len(info_dump) == 3  # All errors (ERROR and INFO levels)
-    
+
     # Also test with DEBUG level to get all errors
-    debug_dump = errors.dump(Errors.DEBUG)
+    debug_dump = errors.to_dict(Errors.DEBUG)
     assert len(debug_dump) == 3  # All errors
 
     # Import re for timestamp validation
@@ -60,7 +60,7 @@ def test_integration():
         if error["level"] == "Info":
             info_error = error
             break
-    
+
     assert info_error is not None
     assert info_error["location"] == {"row": 10, "column": 30}
     assert info_error["message"] == "Test error 3"
