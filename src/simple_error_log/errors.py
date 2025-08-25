@@ -32,10 +32,10 @@ class Errors:
         message = f"{message}\n\nDetails\n{e}\n\nTraceback\n{traceback.format_exc()}"
         self.add(message, location)
 
-    def merge(self, other: 'Errors'):
+    def merge(self, other: "Errors"):
         self._items += other._items
         self._items = sorted(self._items, key=lambda d: d.timestamp)
-        
+
     def clear(self):
         self._items = []
 
@@ -56,9 +56,16 @@ class Errors:
     def error_count(self) -> int:
         return len([x for x in self._items if x.level == Error.ERROR])
 
-    def dump(self, level=ERROR) -> list:
+    def to_dict(self, level=ERROR) -> list[dict]:
         result = []
         for item in self._items:
             if item.level >= level:
                 result.append(item.to_dict())
+        return result
+
+    def dump(self, level=ERROR) -> str:
+        result: str = ""
+        for item in self._items:
+            if item.level >= level:
+                result += f"{item}\n\n"
         return result

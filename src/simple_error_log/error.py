@@ -42,3 +42,10 @@ class Error:
             "location": self.location.to_dict(),
         }
         return result
+
+    def __str__(self) -> str:
+        """
+        Convert the error to a string
+        """
+        message = self.message.replace("\n", "\n  ")
+        return f"- {self.__class__.LABEL[self.level].capitalize()}, type: '{self.error_type}', @ {self.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')}, location: {self.location.to_dict()}\n  {message}"
