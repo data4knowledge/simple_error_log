@@ -1,8 +1,15 @@
 # Simple Error Log
 
-## Description
+A lightweight Python library for structured error logging with location context. Collect, organize, and serialize errors with severity levels and rich location metadata—perfect for validation systems, data pipelines, and document processing.
 
-A set of simple classes for logging errors.
+## Features
+
+- **Zero dependencies** - Pure Python standard library
+- **Multiple severity levels** - ERROR, WARNING, INFO, DEBUG
+- **Location tracking** - Grid coordinates, document sections, class methods, or custom locations
+- **Exception capture** - Full traceback and call stack preservation
+- **Flexible output** - Dictionary (JSON-serializable) or formatted strings
+- **Error aggregation** - Merge, filter, and query error collections
 
 ## Installation
 
@@ -10,12 +17,226 @@ A set of simple classes for logging errors.
 pip install simple_error_log
 ```
 
-## Building package
+Requires Python 3.10+
 
-Use pip to install build and twine. Use the following commands to build
+## Quick Start
 
-```python -m build``` 
+```python
+from simple_error_log import Errors, DocumentSectionLocation, GridLocation
 
-and upload to pypi.org using the command
+# Create an error collection
+errors = Errors()
 
-```twine upload dist/*``` 
+# Log errors with locations
+location = DocumentSectionLocation("2.1", "Data Validation")
+errors.error("Missing required field: email", location)
+
+# Different severity levels
+errors.warning("Deprecated format detected")
+errors.info("Processing started")
+errors.debug("Parsed 150 records")
+
+# Log exceptions with full context
+try:
+    process_data()
+except Exception as e:
+    errors.exception("Processing failed", e, location)
+
+# Export errors
+print(errors.dump())  # Formatted string output
+data = errors.to_dict()  # JSON-serializable dict
+```
+
+## Core Classes
+
+### `Errors`
+
+The main collection class for managing multiple errors.
+
+```python
+from simple_error_log import Errors
+
+errors = Errors()
+
+# Add errors at different levels
+errors.error("Critical failure")
+errors.warning("Non-critical issue")
+errors.info("Informational message")
+errors.debug("Debug details")
+
+# Log exceptions with traceback
+try:
+    risky_operation()
+except Exception as e:
+    errors.exception("Operation failed", e)
+
+# Query the collection
+errors.count()        # Total number of logged items
+errors.error_count()  # Only ERROR-level items
+
+# Export with level filtering
+errors.to_dict(Errors.ERROR)    # Only errors
+errors.to_dict(Errors.WARNING)  # Errors and warnings
+errors.dump(Errors.DEBUG)       # Everything, formatted
+
+# Merge collections
+combined = errors1.merge(errors2)  # Sorted by timestamp
+
+# Clear all errors
+errors.clear()
+```
+
+### `Error`
+
+Represents a single error with metadata.
+
+```python
+from simple_error_log import Error, GridLocation
+
+error = Error(
+    message="Invalid value at position",
+    location=GridLocation(row=5, column=3),
+    level=Error.WARNING,
+    error_type="validation"
+)
+
+print(error)           # Formatted string
+error.to_dict()        # Dictionary representation
+error.timestamp        # When it was created
+```
+
+**Severity Levels:**
+- `Error.ERROR` (40) - Critical errors
+- `Error.WARNING` (30) - Warnings
+- `Error.DEBUG` (20) - Debug information
+- `Error.INFO` (10) - Informational messages
+
+### Location Classes
+
+#### `GridLocation`
+For grid or table-based positions:
+
+```python
+from simple_error_log import GridLocation
+
+loc = GridLocation(row=10, column=5)
+print(loc)        # "[10, 5]"
+loc.to_dict()     # {"row": 10, "column": 5}
+```
+
+#### `DocumentSectionLocation`
+For document sections:
+
+```python
+from simple_error_log import DocumentSectionLocation
+
+loc = DocumentSectionLocation("3.2", "Methodology")
+print(loc)        # "[3.2 Methodology]"
+loc.to_dict()     # {"section_number": "3.2", "section_title": "Methodology"}
+```
+
+#### `KlassMethodLocation`
+For class methods:
+
+```python
+from simple_error_log import KlassMethodLocation
+
+loc = KlassMethodLocation("DataParser", "validate")
+print(loc)        # "DataParser.validate"
+loc.to_dict()     # {"class_name": "DataParser", "method_name": "validate"}
+```
+
+#### Custom Locations
+Create your own by subclassing `ErrorLocation`:
+
+```python
+from simple_error_log import ErrorLocation
+
+class FileLocation(ErrorLocation):
+    def __init__(self, filename: str, line: int):
+        self.filename = filename
+        self.line = line
+
+    def to_dict(self) -> dict:
+        return {"filename": self.filename, "line": self.line}
+
+    def __str__(self) -> str:
+        return f"{self.filename}:{self.line}"
+```
+
+## Example: Data Validation Pipeline
+
+```python
+from simple_error_log import Errors, GridLocation
+
+def validate_spreadsheet(data: list[list]) -> Errors:
+    errors = Errors()
+
+    for row_idx, row in enumerate(data):
+        for col_idx, cell in enumerate(row):
+            location = GridLocation(row_idx, col_idx)
+
+            if cell is None:
+                errors.error("Empty cell not allowed", location)
+            elif isinstance(cell, str) and len(cell) > 255:
+                errors.warning("Cell content exceeds recommended length", location)
+
+    return errors
+
+# Usage
+errors = validate_spreadsheet(my_data)
+
+if errors.error_count() > 0:
+    print("Validation failed:")
+    print(errors.dump(Errors.ERROR))
+else:
+    print(f"Validation passed with {errors.count()} warnings")
+```
+
+## Output Formats
+
+### `dump()` - Formatted String
+
+```
+error: Missing required field
+  location: [2.1 Data Validation]
+  timestamp: 2024-01-15 10:30:45
+
+warning: Deprecated format detected
+  timestamp: 2024-01-15 10:30:46
+```
+
+### `to_dict()` - JSON-Serializable
+
+```python
+[
+    {
+        "message": "Missing required field",
+        "level": "error",
+        "error_type": "",
+        "location": {"section_number": "2.1", "section_title": "Data Validation"},
+        "timestamp": "2024-01-15T10:30:45"
+    }
+]
+```
+
+## Development
+
+### Running Tests
+
+```bash
+pip install pytest pytest-cov
+pytest
+```
+
+### Building the Package
+
+```bash
+pip install build twine
+python -m build
+twine upload dist/*
+```
+
+## License
+
+MIT
