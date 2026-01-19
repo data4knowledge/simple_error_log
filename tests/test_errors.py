@@ -288,7 +288,7 @@ def test_errors_exception_traceback_shows_full_chain():
     errors: Errors = Errors()
 
     def level_3():
-        x = 10 / 0  # This will raise ZeroDivisionError
+        _ = 10 / 0  # This will raise ZeroDivisionError
 
     def level_2():
         level_3()
