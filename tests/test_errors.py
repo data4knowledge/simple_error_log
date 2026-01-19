@@ -244,6 +244,88 @@ def test_errors_exception():
     assert error["location"] == {"mock_key": "mock_value"}
 
 
+def test_errors_exception_includes_call_stack():
+    """
+    Test that exception method includes the full call stack leading to where
+    errors.exception() was called, not just the exception traceback.
+    """
+    errors: Errors = Errors()
+
+    def inner_function():
+        raise ValueError("Inner exception")
+
+    def outer_function():
+        inner_function()
+
+    def caller_function():
+        try:
+            outer_function()
+        except Exception as e:
+            errors.exception("Exception caught", e)
+
+    caller_function()
+
+    assert errors.count() == 1
+
+    dumped_errors = errors.to_dict(Error.ERROR)
+    error = dumped_errors[0]
+    message = error["message"]
+
+    # Verify the call stack is included (shows where errors.exception was called from)
+    assert "caller_function" in message
+
+    # Verify the exception traceback is also included
+    assert "outer_function" in message
+    assert "inner_function" in message
+    assert "ValueError: Inner exception" in message
+
+
+def test_errors_exception_traceback_shows_full_chain():
+    """
+    Test that the traceback shows the complete chain from the top-level caller
+    down to where the exception was raised.
+    """
+    errors: Errors = Errors()
+
+    def level_3():
+        x = 10 / 0  # This will raise ZeroDivisionError
+
+    def level_2():
+        level_3()
+
+    def level_1():
+        level_2()
+
+    def main():
+        try:
+            level_1()
+        except Exception as e:
+            errors.exception("Division error", e)
+
+    main()
+
+    assert errors.count() == 1
+
+    dumped_errors = errors.to_dict(Error.ERROR)
+    error = dumped_errors[0]
+    message = error["message"]
+
+    # Verify the message structure
+    assert "Division error" in message
+    assert "Details" in message
+    assert "division by zero" in message
+    assert "Traceback" in message
+
+    # Verify the call stack shows the path to errors.exception()
+    assert "main" in message
+
+    # Verify the exception traceback shows all levels
+    assert "level_1" in message
+    assert "level_2" in message
+    assert "level_3" in message
+    assert "ZeroDivisionError" in message
+
+
 def test_errors_with_default_location():
     """
     Test the methods with default location (None)
