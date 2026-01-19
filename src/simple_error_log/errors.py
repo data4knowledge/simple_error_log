@@ -29,7 +29,12 @@ class Errors:
         self.add(message, location, level=self.WARNING)
 
     def exception(self, message: str, e: Exception, location: ErrorLocation = None):
-        message = f"{message}\n\nDetails\n{e}\n\nTraceback\n{traceback.format_exc()}"
+        # Get the current call stack (excluding this method)
+        stack = traceback.format_stack()[:-1]
+        # Get the exception traceback
+        exc_tb = traceback.format_exc()
+        full_traceback = "".join(stack) + exc_tb
+        message = f"{message}\n\nDetails\n{e}\n\nTraceback\n{full_traceback}"
         self.add(message, location)
 
     def merge(self, other: "Errors"):
