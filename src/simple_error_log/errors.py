@@ -16,26 +16,61 @@ class Errors:
     def __init__(self):
         self._items: list[Error] = []
 
-    def error(self, message: str, location: ErrorLocation = None):
-        self.add(message, location)
+    def error(
+        self,
+        message: str,
+        location: ErrorLocation = None,
+        error_type: str = "",
+        extra: dict | None = None,
+    ):
+        self.add(message, location, error_type=error_type, extra=extra)
 
-    def info(self, message: str, location: ErrorLocation = None):
-        self.add(message, location, level=self.INFO)
+    def info(
+        self,
+        message: str,
+        location: ErrorLocation = None,
+        error_type: str = "",
+        extra: dict | None = None,
+    ):
+        self.add(message, location, error_type=error_type, level=self.INFO, extra=extra)
 
-    def debug(self, message: str, location: ErrorLocation = None):
-        self.add(message, location, level=self.DEBUG)
+    def debug(
+        self,
+        message: str,
+        location: ErrorLocation = None,
+        error_type: str = "",
+        extra: dict | None = None,
+    ):
+        self.add(
+            message, location, error_type=error_type, level=self.DEBUG, extra=extra
+        )
 
-    def warning(self, message: str, location: ErrorLocation = None):
-        self.add(message, location, level=self.WARNING)
+    def warning(
+        self,
+        message: str,
+        location: ErrorLocation = None,
+        error_type: str = "",
+        extra: dict | None = None,
+    ):
+        self.add(
+            message, location, error_type=error_type, level=self.WARNING, extra=extra
+        )
 
-    def exception(self, message: str, e: Exception, location: ErrorLocation = None):
+    def exception(
+        self,
+        message: str,
+        e: Exception,
+        location: ErrorLocation = None,
+        error_type: str = "",
+        extra: dict | None = None,
+    ):
         # Get the current call stack (excluding this method)
         stack = traceback.format_stack()[:-1]
         # Get the exception traceback
         exc_tb = traceback.format_exc()
         full_traceback = "".join(stack) + exc_tb
         message = f"{message}\n\nDetails\n{e}\n\nTraceback\n{full_traceback}"
-        self.add(message, location)
+        self.add(message, location, error_type=error_type, extra=extra)
 
     def merge(self, other: "Errors"):
         self._items += other._items
@@ -50,9 +85,10 @@ class Errors:
         location: ErrorLocation = None,
         error_type: str = "",
         level: int = Error.ERROR,
+        extra: dict | None = None,
     ) -> None:
         location = location if location else ErrorLocation()
-        error = Error(message, location, error_type, level)
+        error = Error(message, location, error_type, level, extra=extra)
         self._items.append(error)
 
     def count(self) -> int:

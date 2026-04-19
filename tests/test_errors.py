@@ -500,3 +500,171 @@ def test_errors_error_count():
     # Verify counts are reset
     assert errors.count() == 0
     assert errors.error_count() == 0
+
+
+# ---------------------------------------------------------------------------
+# Extra payload + error_type forwarding (added in 0.8.0)
+#
+# The following tests verify that callers can attach a structured ``extra``
+# dict and an ``error_type`` tag via both ``add()`` and the convenience
+# methods (info/warning/error/debug/exception). Downstream consumers that
+# want to emit richer findings (for example a validator building on top of
+# an extraction log) filter by ``error_type`` and read ``extra`` instead of
+# parsing the human-readable message string.
+# ---------------------------------------------------------------------------
+
+
+def test_add_accepts_extra_payload():
+    errors = Errors()
+    errors.add(
+        "Test",
+        MockErrorLocation(),
+        error_type="my_type",
+        level=Error.WARNING,
+        extra={"source": "Phase III", "normalised": "Phase 3"},
+    )
+    item = errors._items[0]
+    assert item.error_type == "my_type"
+    assert item.extra == {"source": "Phase III", "normalised": "Phase 3"}
+    assert item.level == Error.WARNING
+
+
+def test_add_defaults_extra_to_none():
+    errors = Errors()
+    errors.add("Test", MockErrorLocation())
+    assert errors._items[0].extra is None
+
+
+def test_info_forwards_error_type_and_extra():
+    errors = Errors()
+    errors.info(
+        "Info msg",
+        MockErrorLocation(),
+        error_type="normalisation_record",
+        extra={"element": "Trial Phase"},
+    )
+    item = errors._items[0]
+    assert item.level == Error.INFO
+    assert item.error_type == "normalisation_record"
+    assert item.extra == {"element": "Trial Phase"}
+
+
+def test_warning_forwards_error_type_and_extra():
+    errors = Errors()
+    errors.warning(
+        "Warn msg",
+        MockErrorLocation(),
+        error_type="my_tag",
+        extra={"k": 1},
+    )
+    item = errors._items[0]
+    assert item.level == Error.WARNING
+    assert item.error_type == "my_tag"
+    assert item.extra == {"k": 1}
+
+
+def test_error_forwards_error_type_and_extra():
+    errors = Errors()
+    errors.error(
+        "Err msg",
+        MockErrorLocation(),
+        error_type="crit",
+        extra={"key": "value"},
+    )
+    item = errors._items[0]
+    assert item.level == Error.ERROR
+    assert item.error_type == "crit"
+    assert item.extra == {"key": "value"}
+
+
+def test_debug_forwards_error_type_and_extra():
+    errors = Errors()
+    errors.debug(
+        "Dbg",
+        MockErrorLocation(),
+        error_type="dbg_type",
+        extra={"dbg": True},
+    )
+    item = errors._items[0]
+    assert item.level == Error.DEBUG
+    assert item.error_type == "dbg_type"
+    assert item.extra == {"dbg": True}
+
+
+def test_exception_forwards_error_type_and_extra():
+    errors = Errors()
+    try:
+        raise ValueError("boom")
+    except Exception as e:
+        errors.exception(
+            "Exc",
+            e,
+            MockErrorLocation(),
+            error_type="exc_tag",
+            extra={"ctx": "decode"},
+        )
+    item = errors._items[0]
+    assert item.error_type == "exc_tag"
+    assert item.extra == {"ctx": "decode"}
+
+
+def test_convenience_methods_back_compat_without_extra():
+    """Callers that do not supply error_type / extra get the prior
+    behaviour unchanged: empty type and no extra payload."""
+    errors = Errors()
+    errors.error("e", MockErrorLocation())
+    errors.info("i", MockErrorLocation())
+    errors.debug("d", MockErrorLocation())
+    errors.warning("w", MockErrorLocation())
+    for item in errors._items:
+        assert item.error_type == ""
+        assert item.extra is None
+
+
+def test_to_dict_includes_extra():
+    errors = Errors()
+    errors.add(
+        "m",
+        MockErrorLocation(),
+        error_type="t",
+        level=Error.WARNING,
+        extra={"a": 1},
+    )
+    d = errors.to_dict(level=Error.WARNING)
+    assert d[0]["extra"] == {"a": 1}
+    assert d[0]["type"] == "t"
+
+
+def test_to_dict_extra_is_none_when_not_set():
+    errors = Errors()
+    errors.add("m", MockErrorLocation(), level=Error.WARNING)
+    d = errors.to_dict(level=Error.WARNING)
+    assert d[0]["extra"] is None
+
+
+def test_filter_items_by_error_type():
+    """Representative consumer pattern: pull every entry tagged with a
+    given error_type and act on the structured extra payload."""
+    errors = Errors()
+    errors.info("unrelated info", MockErrorLocation())
+    errors.warning(
+        "Normalisation: Phase III → Phase 3",
+        MockErrorLocation(),
+        error_type="m11_normalization_record",
+        extra={"source": "Phase III", "normalised": "Phase 3"},
+    )
+    errors.warning(
+        "Normalisation: II → Phase 2",
+        MockErrorLocation(),
+        error_type="m11_normalization_record",
+        extra={"source": "II", "normalised": "Phase 2"},
+    )
+    errors.info("more unrelated info", MockErrorLocation())
+
+    records = [
+        item for item in errors._items
+        if item.error_type == "m11_normalization_record"
+    ]
+    assert len(records) == 2
+    assert records[0].extra["source"] == "Phase III"
+    assert records[1].extra["normalised"] == "Phase 2"

@@ -366,3 +366,41 @@ class TestErrorIntegration:
 
         assert error1.timestamp != error2.timestamp
         assert error1.timestamp < error2.timestamp
+
+
+# ---------------------------------------------------------------------------
+# Extra payload (added in 0.8.0) — structured data on the Error object.
+# ---------------------------------------------------------------------------
+
+
+class TestErrorExtra:
+    """Tests for the ``extra`` structured-payload field."""
+
+    def test_extra_defaults_to_none(self):
+        err = Error("msg", MockErrorLocation())
+        assert err.extra is None
+
+    def test_extra_stores_dict(self):
+        payload = {"source": "Phase III", "normalised": "Phase 3"}
+        err = Error(
+            "normalisation",
+            MockErrorLocation(),
+            error_type="normalisation_record",
+            level=Error.WARNING,
+            extra=payload,
+        )
+        assert err.extra == payload
+        assert err.extra is payload  # stored by reference
+
+    def test_to_dict_includes_extra_when_set(self):
+        err = Error("m", MockErrorLocation(), extra={"a": 1})
+        assert err.to_dict()["extra"] == {"a": 1}
+
+    def test_to_dict_includes_extra_as_none_by_default(self):
+        err = Error("m", MockErrorLocation())
+        assert err.to_dict()["extra"] is None
+
+    def test_extra_preserved_across_arbitrary_nested_shape(self):
+        payload = {"list": [1, 2, 3], "nested": {"x": "y"}}
+        err = Error("m", MockErrorLocation(), extra=payload)
+        assert err.to_dict()["extra"] == payload

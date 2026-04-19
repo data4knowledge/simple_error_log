@@ -20,14 +20,23 @@ class Error:
         location: ErrorLocation,
         error_type: str = "",
         level: int = ERROR,
+        extra: dict | None = None,
     ):
         """
-        Initialize the error
+        Initialize the error.
+
+        ``extra`` is an optional structured payload the caller can attach
+        when the message has machine-readable context downstream consumers
+        want to read without parsing the message string (for example
+        ``{"source": "Phase III", "normalised": "Phase 3"}`` on a
+        normalisation record). Pairs naturally with ``error_type`` as a
+        filter tag.
         """
         self.location = location
         self.message = message
         self.level = level
         self.error_type = error_type
+        self.extra = extra
         self.timestamp = datetime.now()
 
     def to_dict(self) -> dict:
@@ -38,6 +47,7 @@ class Error:
             "level": self.__class__.LABEL[self.level].capitalize(),
             "message": self.message,
             "type": self.error_type,
+            "extra": self.extra,
             "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f"),
             "location": self.location.to_dict(),
         }
