@@ -662,8 +662,7 @@ def test_filter_items_by_error_type():
     errors.info("more unrelated info", MockErrorLocation())
 
     records = [
-        item for item in errors._items
-        if item.error_type == "m11_normalization_record"
+        item for item in errors._items if item.error_type == "m11_normalization_record"
     ]
     assert len(records) == 2
     assert records[0].extra["source"] == "Phase III"

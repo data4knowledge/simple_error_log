@@ -8,6 +8,7 @@ A lightweight Python library for structured error logging with location context.
 - **Multiple severity levels** - ERROR, WARNING, INFO, DEBUG
 - **Location tracking** - Grid coordinates, document sections, class methods, or custom locations
 - **Exception capture** - Full traceback and call stack preservation
+- **Structured extras** - Attach machine-readable payloads alongside the human message
 - **Flexible output** - Dictionary (JSON-serializable) or formatted strings
 - **Error aggregation** - Merge, filter, and query error collections
 
@@ -110,6 +111,31 @@ error.timestamp        # When it was created
 - `Error.WARNING` (30) - Warnings
 - `Error.DEBUG` (20) - Debug information
 - `Error.INFO` (10) - Informational messages
+
+### Structured Extras
+
+Every logging method accepts an optional `extra` dict for machine-readable
+context that downstream consumers shouldn't have to parse out of the message
+string. It pairs naturally with `error_type` as a filter tag.
+
+```python
+from simple_error_log import Errors, GridLocation
+
+errors = Errors()
+
+errors.warning(
+    "Normalised phase label",
+    location=GridLocation(row=4, column=2),
+    error_type="normalisation",
+    extra={"source": "Phase III", "normalised": "Phase 3"},
+)
+
+# Available on every level plus exception()
+errors.error("Invalid code", error_type="lookup", extra={"code": "X99"})
+errors.info("Batch complete", extra={"records": 1500, "elapsed_ms": 842})
+```
+
+The payload round-trips through `to_dict()` under the `"extra"` key.
 
 ### Location Classes
 
